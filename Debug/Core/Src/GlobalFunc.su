@@ -1,0 +1,4 @@
+../Core/Src/GlobalFunc.c:11:8:dotProduct	40	static
+../Core/Src/GlobalFunc.c:19:6:matrixTranspose	24	static
+../Core/Src/GlobalFunc.c:29:6:inv	144	static
+../Core/Src/GlobalFunc.c:60:6:matrixProduct	56	static
