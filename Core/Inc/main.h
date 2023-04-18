@@ -45,7 +45,7 @@ typedef struct Vector3D{
 }Vec3D;
 
 typedef enum { false, true } bool;
-typedef enum {INIT,READY,WORKING,HOME,DEMO,FAULT} statesMachine;
+typedef enum {INIT,READY,WORKING,HOME,FAULT} statesMachine;
 
 typedef struct Motor{
 
@@ -65,7 +65,7 @@ typedef struct Motor{
 
 }Motor;
 
-extern bool faultDrivers,endStopAlarmInf,endStopAlarmSup,continuar;
+extern bool faultDrivers,lowerESalarm,upperESalarm,manualTrigger;
 extern bool timeFlag;
 extern uint8_t rx_index,rx_buffer[30],rx_data;
 extern statesMachine state;

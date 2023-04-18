@@ -750,7 +750,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim10, TIM_CHANNEL_1);
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
-			 endStopAlarmInf = true;
+			 lowerESalarm = true;
 			 state = FAULT;
 			 break;
 
@@ -766,7 +766,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim10, TIM_CHANNEL_1);
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
-			 endStopAlarmSup = true;
+			 upperESalarm = true;
 			 state = FAULT;
 			 break;
 
@@ -782,7 +782,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim10, TIM_CHANNEL_1);
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
-			 endStopAlarmInf = true;
+			 lowerESalarm = true;
 			 state = FAULT;
 			 break;
 
@@ -799,7 +799,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim10, TIM_CHANNEL_1);
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
-			 endStopAlarmSup = true;
+			 upperESalarm = true;
 			 state = FAULT;
 			 break;
 
@@ -815,7 +815,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim10, TIM_CHANNEL_1);
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
-			 endStopAlarmInf = true;
+			 lowerESalarm = true;
 			 state = FAULT;
 
 			 break;
@@ -832,32 +832,32 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim10, TIM_CHANNEL_1);
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
-			 endStopAlarmSup = true;
+			 upperESalarm = true;
 			 state = FAULT;
 			 break;
 
 		 case BUTTON_Pin:
 
-			 if (!endStopAlarmSup && !endStopAlarmInf && !faultDrivers){
-				 continuar = false;
-			 }else{continuar = true;}
+			 if (!upperESalarm && !lowerESalarm && !faultDrivers){
+				 manualTrigger = false;
+			 }else{manualTrigger = true;}
 
 			 break;
 
 
 //		 case faultDriver1_Pin:
-//			 //continuar = false;
+//			 //manualTrigger = false;
 //			 faultDrivers = true;
 //			 state = FAULT;
 //			 break;
 //
 //		 case faultDriver2_Pin:
-//			 //continuar = false;
+//			 //manualTrigger = false;
 //			 faultDrivers = true;
 //			 state = FAULT;
 //			 break;
 //		 case faultDriver3_Pin:
-//			 //continuar = false;
+//			 //manualTrigger = false;
 //			 faultDrivers = true;
 //			 state = FAULT;
 //			 break;

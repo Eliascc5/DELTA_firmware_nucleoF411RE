@@ -14,12 +14,13 @@ statesMachine state = INIT;
 bool homFin = false;
 bool startMotors = false;
 bool stopMotors = false;
-bool endStopAlarmSup = false;
-bool endStopAlarmInf = false;
+bool upperESalarm = false;
+bool lowerESalarm = false;
 
 
-bool continuar = false;
+bool manualTrigger = false;
 bool faultDrivers = false;
+
 
 //--------------------------------------------
 //Valores para crear el perfil de velocidad
@@ -51,21 +52,13 @@ bool timeFlag;
 uint8_t rx_index = 0;
 uint8_t rx_buffer[BUFFER_SIZE];
 uint8_t rx_data;
-uint8_t message[] = "Inicializacion en curso...\n";		//Mensaje enviado al iniciar el programa
-uint8_t message1[] = "El robot ya se encuentra operacional.\n";
-uint8_t message2[] ="ok\n";
+uint8_t message[]="Inicializacion en curso...\n";
+uint8_t message1[]="El robot ya se encuentra operacional.\n";
+uint8_t message2[]="done\n";
 
 bool receptionFlag=false;
-bool readFile=false;
-bool startDemo = false;
 
 
-//--------------------------------------------
-//Lectura de archivo para demo
-
-FILE *file;
-char *filename = "archivo.txt";
-char buffer[BUFFER_SIZE];
 //--------------------------------------------
 
 void robotInitialization(void){
@@ -213,13 +206,13 @@ void statesMachineLoop(void){
 		Pini.y = Pfin.y;
 		Pini.z = Pfin.z;
 
+		HAL_UART_Transmit(&huart2, message2, sizeof(message2), 100);
+
 		HAL_TIM_Base_Stop_IT(&htim9);
 		HAL_TIM_Base_Stop(&htim2);
 
-		if (startDemo){state=DEMO;}
-		else{state = READY;}
 
-
+		state = READY;
 		break;
 
 	case READY:
@@ -272,7 +265,7 @@ void statesMachineLoop(void){
 		TIM3->CCR1 = (uint32_t)((double)(TIM3->ARR) / 2.0);
 		TIM4->CCR1 = (uint32_t)((double)(TIM4->ARR) / 2.0);
 
-		while((endStopAlarmSup || endStopAlarmInf) && continuar){
+		while((upperESalarm || lowerESalarm) && manualTrigger){
 
 			 //HAL_UART_Transmit(&huart2,(uint8_t*)"EndStopAlarm\r\n", 16, 100);
 
@@ -344,9 +337,9 @@ void statesMachineLoop(void){
 				 HAL_Delay(10);
 				 if(ES1s_UNPRESSED && ES2s_UNPRESSED && ES3s_UNPRESSED && ES1i_UNPRESSED && ES2i_UNPRESSED && ES3i_UNPRESSED){
 
-					 endStopAlarmSup = false;
-					 endStopAlarmInf = false;
-					 continuar = false;
+					 upperESalarm = false;
+					 lowerESalarm = false;
+					 manualTrigger = false;
 					 HAL_UART_Transmit(&huart2,(uint8_t*)"Fin_FAULT\r\n", 13, 100);
 					 state = READY;
 
@@ -357,7 +350,7 @@ void statesMachineLoop(void){
 
 		}//End while
 
-		while(faultDrivers && continuar){
+		while(faultDrivers && manualTrigger){
 
 
 			//relayAbierto;
@@ -365,7 +358,7 @@ void statesMachineLoop(void){
 			//relayCerrado;
 
 			faultDrivers = false;
-			continuar = false;
+			manualTrigger = false;
 
 			HAL_UART_Transmit(&huart2,(uint8_t*)"Fin_FALL\r\n", 13, 100);
 			state = READY;
@@ -375,38 +368,6 @@ void statesMachineLoop(void){
 
 		break;
 
-	case DEMO:
-
-	    // Abre el archivo para lectura (una sola vez siempre y cuando readFile sea verdadero )
-		if (readFile){
-			file = fopen(filename, "r");
-
-			// Verifica si el archivo se ha abierto correctamente
-			if (file == NULL) {
-				HAL_UART_Transmit(&huart2,(uint8_t*)"No se pudo abrir el archivo.\n", 30, 100);
-				break;
-			}
-			readFile = false;
-			startDemo = true;
-		}
-
-	    // Lee cada línea del archivo y la guarda en el buffer
-	    if (fgets(buffer, BUFFER_SIZE, file) != NULL) {
-
-	        // Copia la línea al buffer de tipo uint8_t
-	        //uint8_t rx_buffer[strlen(buffer)];
-	        memcpy(rx_buffer, buffer, strlen(buffer));
-
-	        interpretaComando();
-
-	        state = READY;
-	    }
-	    else{
-			// Cierra el archivo
-			startDemo = false;
-			fclose(file);
-			HAL_UART_Transmit(&huart2,(uint8_t*)"Fin demo\n", 10, 100);
-	    }
 
 	default:break;
 	}
