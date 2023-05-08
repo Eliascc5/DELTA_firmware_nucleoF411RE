@@ -13,15 +13,11 @@
 #include "main.h"
 #include "stdlib.h"
 
-
 extern Vec3D Pini,Pfin;
 extern UART_HandleTypeDef huart2;
 extern uint8_t rx_buffer[BUFFER_SIZE];
 extern bool receptionFlag,readFile;
 extern statesMachine state;
-
-
-extern double flagErrorEndStop;
 
 void interpretaComando(void);
 
