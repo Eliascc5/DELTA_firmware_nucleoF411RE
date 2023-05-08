@@ -52,45 +52,11 @@ bool timeFlag;
 uint8_t rx_index = 0;
 uint8_t rx_buffer[BUFFER_SIZE];
 uint8_t rx_data;
-uint8_t message[]="Inicializacion en curso...\n";
-uint8_t message1[]="El robot ya se encuentra operacional.\n";
+
+uint8_t message1[]="The robot is ready to be used.\n";
 uint8_t message2[]="done\n";
 
 bool receptionFlag=false;
-
-
-//--------------------------------------------
-
-void robotInitialization(void){
-
-	/* En esta rutina se procederá a inicializar perifericos vinculados al robot asi como la definicion
-	* de un estado seguro y no referenciado del robot al momento de energizarlo, esto quiere decir que
-	* habilatamos los drivers al momento de lanzar el programa para que los motores se bloqueen. Se procedera
-	* a darles una consigna pequeña de posicion en direccion horario para que los eslabones no entren en la
-	* singularidad de los 90º */
-
-
-	HAL_TIM_Base_Start(&htim1);
-	HAL_TIM_Base_Start(&htim3);
-	HAL_TIM_Base_Start(&htim4);
-
-	HAL_GPIO_WritePin(S_Enable_1_GPIO_Port, S_Enable_1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(S_Enable_2_GPIO_Port, S_Enable_2_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(S_Enable_3_GPIO_Port, S_Enable_3_Pin, GPIO_PIN_RESET);
-
-	HAL_Delay(50); //50 ms es el tiempo que la señal ENABLE en cambiar de estado
-
-	// Se estable la direccion horario por defecto
-	positive_Dir_MOTOR_1;
-	positive_Dir_MOTOR_2;
-	positive_Dir_MOTOR_3;
-
-	motor1.stepReached = false;
-	motor2.stepReached = false;
-	motor3.stepReached = false;
-
-
-}
 
 
 void statesMachineLoop(void){
@@ -101,17 +67,40 @@ void statesMachineLoop(void){
 
 	case INIT:
 
-		  HAL_UART_Transmit(&huart2, message, sizeof(message), 100); //Mensaje de inicializacion en curso.
-		  HAL_UART_Receive_IT(&huart2, &rx_data, 1);
-		  robotInitialization();
-		  HAL_UART_Transmit(&huart2, message1, sizeof(message1), 100); //Mensaje inidicando que el Robot esta listo para su uso
+		HAL_UART_Transmit(&huart2,(uint8_t*)"S1\n", 4, 100);
+		HAL_UART_Receive_IT(&huart2, &rx_data, 1);
 
-		  state = READY;
+		HAL_TIM_Base_Start(&htim1);
+		HAL_TIM_Base_Start(&htim3);
+		HAL_TIM_Base_Start(&htim4);
+
+		//Enable drivers motores (0 es habilitado)
+		ENABLE_PIN_RESET_1;
+		ENABLE_PIN_RESET_2;
+		ENABLE_PIN_RESET_3;
+
+		HAL_Delay(DELAY_ENABLE);
+
+		//Se estable la direccion horario por defecto
+		positive_Dir_MOTOR_1;
+		positive_Dir_MOTOR_2;
+		positive_Dir_MOTOR_3;
+
+		motor1.stepReached = false;
+		motor2.stepReached = false;
+		motor3.stepReached = false;
+
+
+		HAL_UART_Transmit(&huart2, message1, sizeof(message1), 100); //Mensaje inidicando que el Robot esta listo para su uso
+		HAL_Delay(100);
+		HAL_UART_Transmit(&huart2,(uint8_t*)"S2\n", 4, 100);
+		state = READY;
 
 		break;
 
 	case HOME:
 
+		HAL_UART_Transmit(&huart2,(uint8_t*)"S3\n", 4, 100);
 		receptionFlag = false; //Solo para asegurarse de no saltar al estado ready con esta bandera en true
 
 		homing();
@@ -119,7 +108,6 @@ void statesMachineLoop(void){
         if(homFin){
 
         	homFin = false;
-        	HAL_Delay(1);
 
         	HAL_NVIC_EnableIRQ(EXTI0_IRQn);		//Enciendo interrupcion EndStop 1 Superior
         	HAL_NVIC_EnableIRQ(EXTI1_IRQn);		//Enciendo interrupcion EndStop 1 Inferior
@@ -128,6 +116,8 @@ void statesMachineLoop(void){
         	HAL_NVIC_EnableIRQ(EXTI4_IRQn);		//Enciendo interrupcion EndStop 3 Superior
         	HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);	//Enciendo interrupcion EndStop 3 Inferior
         	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn); //Enciendo interrupcion faultDriver
+
+        	HAL_Delay(10);
 
 			Pini.x=0;
 			Pini.y=0;
@@ -141,16 +131,20 @@ void statesMachineLoop(void){
 			motor2.currentAngle = 0.0;
 			motor3.currentAngle = 0.0;
 
+			upperESalarm = false;
+			lowerESalarm = false;
+
+			HAL_UART_Transmit(&huart2,(uint8_t*)"S2\n", 4, 100);
 			state = READY;
 
         }
-
 
 		break;
 
 	case WORKING:
 
 		receptionFlag = false;
+		//HAL_UART_Transmit(&huart2,(uint8_t*)"S4\n", 4, 100);
 
 		while (!(motor1.stepReached && motor2.stepReached  && motor3.stepReached)){
 
@@ -185,9 +179,6 @@ void statesMachineLoop(void){
 
 		}// End while
 
-
-
-
 		if (stopMotors){   //If steps goals for each motor were reached, we stop motors
 
 			startMotors = false;
@@ -211,8 +202,8 @@ void statesMachineLoop(void){
 		HAL_TIM_Base_Stop_IT(&htim9);
 		HAL_TIM_Base_Stop(&htim2);
 
-
 		state = READY;
+
 		break;
 
 	case READY:
@@ -250,7 +241,7 @@ void statesMachineLoop(void){
 			HAL_TIM_Base_Start_IT(&htim9);
 			HAL_TIM_Base_Start(&htim2);
 
-
+			HAL_UART_Transmit(&huart2,(uint8_t*)"S4\n", 4, 100);
 			state = WORKING;
 		}
 		break;
@@ -267,86 +258,80 @@ void statesMachineLoop(void){
 
 		while((upperESalarm || lowerESalarm) && manualTrigger){
 
-			 //HAL_UART_Transmit(&huart2,(uint8_t*)"EndStopAlarm\r\n", 16, 100);
 
 			 if (ES1i_PRESSED){
-				 HAL_Delay(10);
+				 HAL_Delay(DELAY_FC_SENSOR);
 				 if (ES1i_PRESSED){
 					 positive_Dir_MOTOR_1;
-					 HAL_Delay(0.5); 							//delay cambio de dir
+					 HAL_Delay(DELAY_DIR); 							//delay cambio de dir
 					 Start_PWM_MOTOR_1;
-					 HAL_Delay(200);
+					 HAL_Delay(DELAY_FAULT);
 					 Stop_PWM_MOTOR_1;
 				 }
 			 }
 			 if (ES1s_PRESSED){
-				 HAL_Delay(10);
+				 HAL_Delay(DELAY_FC_SENSOR);
 				 if (ES1s_PRESSED){
 					 negative_Dir_MOTOR_1;
-					 HAL_Delay(0.5); 							//delay cambio de dir
+					 HAL_Delay(DELAY_DIR); 							//delay cambio de dir
 					 Start_PWM_MOTOR_1;
-					 HAL_Delay(200);
+					 HAL_Delay(DELAY_FAULT);
 					 Stop_PWM_MOTOR_1;
 				 }
 			 }
-
-
 			 if (ES2i_PRESSED){
-				 HAL_Delay(30);
+				 HAL_Delay(DELAY_FC_SENSOR);
 				 if (ES2i_PRESSED){
 					 positive_Dir_MOTOR_2;
-					 HAL_Delay(0.5); 							//delay cambio de dir
+					 HAL_Delay(DELAY_DIR); 							//delay cambio de dir
 					 Start_PWM_MOTOR_2;
-					 HAL_Delay(200);
+					 HAL_Delay(DELAY_FAULT);
 					 Stop_PWM_MOTOR_2;
 				 }
 			 }
 			 if (ES2s_PRESSED){
-				 HAL_Delay(10);
+				 HAL_Delay(DELAY_FC_SENSOR);
 				 if (ES2s_PRESSED){
 					 negative_Dir_MOTOR_2;
-					 HAL_Delay(0.5); 							//delay cambio de dir
+					 HAL_Delay(DELAY_DIR); 							//delay cambio de dir
 					 Start_PWM_MOTOR_2;
-					 HAL_Delay(200);
+					 HAL_Delay(DELAY_FAULT);
 					 Stop_PWM_MOTOR_2;
 				 }
 			 }
 			 if (ES3i_PRESSED){
-				 HAL_Delay(10);
+				 HAL_Delay(DELAY_FC_SENSOR);
 				 if (ES3i_PRESSED){
 					 positive_Dir_MOTOR_3;
-					 HAL_Delay(0.5); 							//delay cambio de dir
+					 HAL_Delay(DELAY_DIR); 							//delay cambio de dir
 					 Start_PWM_MOTOR_3;
-					 HAL_Delay(200);
+					 HAL_Delay(DELAY_FAULT);
 					 Stop_PWM_MOTOR_3;
 				 }
 			 }
 			 if (ES3s_PRESSED){
-				 HAL_Delay(10);
+				 HAL_Delay(DELAY_FC_SENSOR);
 				 if (ES3s_PRESSED){
 					 negative_Dir_MOTOR_3;
-					 HAL_Delay(0.5); 							//delay cambio de dir
+					 HAL_Delay(DELAY_DIR); 							//delay cambio de dir
 					 Start_PWM_MOTOR_3;
-					 HAL_Delay(200);
+					 HAL_Delay(DELAY_FAULT);
 					 Stop_PWM_MOTOR_3;
 				 }
 			 }
 
 
 			 if(ES1s_UNPRESSED && ES2s_UNPRESSED && ES3s_UNPRESSED && ES1i_UNPRESSED && ES2i_UNPRESSED && ES3i_UNPRESSED){
-				 HAL_Delay(10);
+				 HAL_Delay(DELAY_FC_SENSOR);
 				 if(ES1s_UNPRESSED && ES2s_UNPRESSED && ES3s_UNPRESSED && ES1i_UNPRESSED && ES2i_UNPRESSED && ES3i_UNPRESSED){
 
 					 upperESalarm = false;
 					 lowerESalarm = false;
 					 manualTrigger = false;
-					 HAL_UART_Transmit(&huart2,(uint8_t*)"Fin_FAULT\r\n", 13, 100);
+					 HAL_UART_Transmit(&huart2,(uint8_t*)"S2\n", 13, 100);
 					 state = READY;
-
 				 }
-
 			 }
-
 
 		}//End while
 
@@ -360,7 +345,7 @@ void statesMachineLoop(void){
 			faultDrivers = false;
 			manualTrigger = false;
 
-			HAL_UART_Transmit(&huart2,(uint8_t*)"Fin_FALL\r\n", 13, 100);
+			HAL_UART_Transmit(&huart2,(uint8_t*)"S2\n", 13, 100);
 			state = READY;
 
 		}//End while
