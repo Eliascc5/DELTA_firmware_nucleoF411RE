@@ -195,6 +195,10 @@ void Error_Handler(void);
 #define negative_Dir_MOTOR_2 (HAL_GPIO_WritePin(S_DirPaP2_GPIO_Port, S_DirPaP2_Pin, GPIO_PIN_SET))
 #define negative_Dir_MOTOR_3 (HAL_GPIO_WritePin(S_DirPaP3_GPIO_Port, S_DirPaP3_Pin, GPIO_PIN_SET))
 
+#define ENABLE_PIN_RESET_1 HAL_GPIO_WritePin(S_Enable_1_GPIO_Port, S_Enable_1_Pin, GPIO_PIN_RESET);
+#define ENABLE_PIN_RESET_2 HAL_GPIO_WritePin(S_Enable_2_GPIO_Port, S_Enable_2_Pin, GPIO_PIN_RESET);
+#define ENABLE_PIN_RESET_3 HAL_GPIO_WritePin(S_Enable_3_GPIO_Port, S_Enable_3_Pin, GPIO_PIN_RESET);
+
 #define relayAbierto (HAL_GPIO_WritePin(relayDrivers_GPIO_Port, relayDrivers_Pin, GPIO_PIN_SET))
 #define relayCerrado (HAL_GPIO_WritePin(relayDrivers_GPIO_Port, relayDrivers_Pin, GPIO_PIN_RESET))
 
@@ -207,7 +211,10 @@ void Error_Handler(void);
 
 #define COUNTERPERIOD(rpm) (uint32_t)((FCL/((double)(TIM1->PSC) + 1.0))*( 60.0 / ((rpm) * STEPREV)) - 1.0)
 
-
+#define DELAY_FAULT 1000  //valor experimental 1segundo
+#define DELAY_ENABLE 50   //Este valor se encuentra en el datasheet de los drivers
+#define DELAY_DIR 0.5	  //Este valor se encuentra en el datasheet de los drivers
+#define DELAY_FC_SENSOR 30 //Necesario para filtrar el transistorio en los FC
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

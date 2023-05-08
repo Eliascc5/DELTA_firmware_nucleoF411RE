@@ -63,10 +63,8 @@ UART_HandleTypeDef huart2;
 Motor motor1, motor2,motor3;
 
 double time;
-double flagErrorEndStop = 0;
 uint8_t cm0;				//Flag start transmit
 
-int test =0,test1=0;  //TODO: Variables para debuguear, borrar al final
 
 /* USER CODE END PV */
 
@@ -689,7 +687,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : faultDriver3_Pin */
   GPIO_InitStruct.Pin = faultDriver3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(faultDriver3_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : S_DirPaP1_Pin */
@@ -702,19 +700,19 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : faultDriver2_Pin faultDriver1_Pin E_EndStop1_Sup_Pin E_EndStop1_Inf_Pin */
   GPIO_InitStruct.Pin = faultDriver2_Pin|faultDriver1_Pin|E_EndStop1_Sup_Pin|E_EndStop1_Inf_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : E_EndStop3_Sup_Pin E_EndStop2_Sup_Pin E_EndStop3_Inf_Pin */
   GPIO_InitStruct.Pin = E_EndStop3_Sup_Pin|E_EndStop2_Sup_Pin|E_EndStop3_Inf_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : E_EndStop2_Inf_Pin */
   GPIO_InitStruct.Pin = E_EndStop2_Inf_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(E_EndStop2_Inf_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
@@ -734,7 +732,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	test++;
+
 	switch( GPIO_Pin){
 
 		 case E_EndStop1_Inf_Pin:
@@ -751,6 +749,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
 			 lowerESalarm = true;
+			 HAL_UART_Transmit(&huart2,(uint8_t*)"S5\n", 13, 100);
 			 state = FAULT;
 			 break;
 
@@ -767,6 +766,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
 			 upperESalarm = true;
+			 HAL_UART_Transmit(&huart2,(uint8_t*)"S5\n", 13, 100);
 			 state = FAULT;
 			 break;
 
@@ -783,6 +783,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
 			 lowerESalarm = true;
+			 HAL_UART_Transmit(&huart2,(uint8_t*)"S5\n", 13, 100);
 			 state = FAULT;
 			 break;
 
@@ -800,6 +801,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
 			 upperESalarm = true;
+			 HAL_UART_Transmit(&huart2,(uint8_t*)"S5\n", 13, 100);
 			 state = FAULT;
 			 break;
 
@@ -816,6 +818,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
 			 lowerESalarm = true;
+			 HAL_UART_Transmit(&huart2,(uint8_t*)"S5\n", 13, 100);
 			 state = FAULT;
 
 			 break;
@@ -833,6 +836,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			 HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 
 			 upperESalarm = true;
+			 HAL_UART_Transmit(&huart2,(uint8_t*)"S5\n", 13, 100);
 			 state = FAULT;
 			 break;
 
