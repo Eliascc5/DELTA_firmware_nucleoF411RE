@@ -8,7 +8,7 @@
  */
 #include "homing.h"
 
-
+#define TIME_OFFSET 1100
 double rpm = 1.0;  //Valor experimental. Se encontro que es una buena velocidad para la tarea de homing
 bool homAprox, homStart;
 
@@ -59,7 +59,7 @@ void homing(void) {
         Start_PWM_MOTOR_3;
 
         if (ES1s_PRESSED || ES2s_PRESSED || ES3s_PRESSED){
-            HAL_Delay(30);
+            HAL_Delay(DELAY_FC_SENSOR);
             if (ES1s_PRESSED || ES2s_PRESSED || ES3s_PRESSED){
 
                 Stop_PWM_MOTOR_1;
@@ -80,21 +80,21 @@ void homing(void) {
             Stop_PWM_MOTOR_2;
             Stop_PWM_MOTOR_3;
 
-            HAL_Delay(30);//Delay necesario para consultar el estado del pin vinculado al ES1s
+            HAL_Delay(DELAY_FC_SENSOR);//Delay necesario para consultar el estado del pin vinculado al ES1s
 
             while(ES1s_PRESSED){
 
                 negative_Dir_MOTOR_1;
-                HAL_Delay(0.5); 							//delay cambio de dir
+                HAL_Delay(DELAY_DIR); 							//delay cambio de dir
                 Start_PWM_MOTOR_1;
-                HAL_Delay(500); //Lo dejamos que se mueva medio segundo en la direccion descreciente
+                HAL_Delay(TIME_OFFSET); //Lo dejamos que se mueva medio segundo en la direccion descreciente
 
             }
 
             Stop_PWM_MOTOR_1;
             motor1.hom=true;
             HAL_UART_Transmit(&huart2,(uint8_t *)"F1\n", 4, 100);
-            HAL_Delay(30);
+            HAL_Delay(DELAY_FC_SENSOR);
 
             if (ES2s_UNPRESSED && !motor2.hom)Start_PWM_MOTOR_2;
             if (ES3s_UNPRESSED && !motor3.hom)Start_PWM_MOTOR_3;
@@ -107,21 +107,21 @@ void homing(void) {
             Stop_PWM_MOTOR_1;
             Stop_PWM_MOTOR_3;
 
-            HAL_Delay(30);//Delay necesario para consultar el estado del pin vinculado al ES2s
+            HAL_Delay(DELAY_FC_SENSOR);//Delay necesario para consultar el estado del pin vinculado al ES2s
 
             while(ES2s_PRESSED){
 
                 negative_Dir_MOTOR_2;
-                HAL_Delay(0.5);
+                HAL_Delay(DELAY_DIR);
                 Start_PWM_MOTOR_2;
-                HAL_Delay(500);
+                HAL_Delay(TIME_OFFSET);
 
             }
 
             Stop_PWM_MOTOR_2;
             motor2.hom=true;
             HAL_UART_Transmit(&huart2,(uint8_t *)"F2\n", 4, 100);
-            HAL_Delay(30);
+            HAL_Delay(DELAY_FC_SENSOR);
 
             if (ES1s_UNPRESSED && !motor1.hom)Start_PWM_MOTOR_1;
             if (ES3s_UNPRESSED && !motor3.hom)Start_PWM_MOTOR_3;
@@ -134,20 +134,20 @@ void homing(void) {
             Stop_PWM_MOTOR_1;
             Stop_PWM_MOTOR_2;
 
-            HAL_Delay(30);//Delay necesario para consultar el estado del pin vinculado al ES3s
+            HAL_Delay(DELAY_FC_SENSOR);//Delay necesario para consultar el estado del pin vinculado al ES3s
 
             while(ES3s_PRESSED){
 
                 negative_Dir_MOTOR_3;
-                HAL_Delay(0.5);
+                HAL_Delay(DELAY_DIR);
                 Start_PWM_MOTOR_3;
-                HAL_Delay(500);
+                HAL_Delay(TIME_OFFSET);
             }
 
             Stop_PWM_MOTOR_3;
             motor3.hom = true;
             HAL_UART_Transmit(&huart2,(uint8_t *)"F3\n", 4, 100);
-			HAL_Delay(30);
+			HAL_Delay(DELAY_FC_SENSOR);
             if (ES1s_UNPRESSED && !motor1.hom)Start_PWM_MOTOR_1;
             if (ES2s_UNPRESSED && !motor2.hom)Start_PWM_MOTOR_2;
         }// ES3s_UNPRESSED : Se dejó de presionar el FC3 sup
