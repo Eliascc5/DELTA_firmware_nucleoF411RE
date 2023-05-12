@@ -12,36 +12,41 @@
 statesMachine state = INIT;
 
 bool homFin = false;
+
 bool startMotors = false;
 bool stopMotors = false;
+
 bool upperESalarm = false;
 bool lowerESalarm = false;
-
+bool faultDrivers = false;
 
 bool manualTrigger = false;
-bool faultDrivers = false;
+
 
 
 //--------------------------------------------
 //Valores para crear el perfil de velocidad
-//'q' es una variable fisica que puedo interpretarse como posicon cartesiana o articular. qd,qdd,qddd son sus respectivas derivadas
+//'q' es una variable fisica que puede interpretarse como posicon cartesiana o articular. qd,qdd,qddd son sus respectivas derivadas
+
+//Todos los valores estan experesados en el "Sistema Internacional de Unidades" es decir, rad, s.
 
 double q=0,qd=0,qdd=0,qddd=0;
-double jmax = 1;        //Jerk maximo
-double jmin;			//Jerk minimo
 
-double vmax = 0.5;		//Velocidad maxima
+double vmax = 1;		//Velocidad maxima
 double vmin;			//Velocidad minima
 
 double vi = 0.3;		//Velocidad inicial
-double vf = 0;			//Velocidad final
+double vf = 0.3;			//Velocidad final
 
-double amax = 2;		//Aceleracion maxima
+double amax = 1;		//Aceleracion maxima
 double amin;			//Aceleracion minima
+
+double jmax = 2;        //Jerk maximo
+double jmin;			//Jerk minimo
 //--------------------------------------------
 
 Vec3D Pini,Pfin;       //Punto inicial y final  (coordenadas cartesianas)
-
+double temp1,temp2,temp3;
 double arrayParams1[7];
 double arrayParams2[7];
 double arrayParams3[7];
@@ -63,7 +68,7 @@ void statesMachineLoop(void){
 
 
 
-	switch (state){
+ 	switch (state){
 
 	case INIT:
 
@@ -161,12 +166,11 @@ void statesMachineLoop(void){
 				HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_3);
 			}
 
-			motor1.omega = get_Straj(time,motor1.currentAngle,motor1.theta,arrayParams1);
-			motor2.omega = get_Straj(time,motor2.currentAngle,motor2.theta,arrayParams2);
-			motor3.omega = get_Straj(time,motor3.currentAngle,motor3.theta,arrayParams3);
+			motor1.omega = get_Straj(time,temp1*DEG_TO_RAD,motor1.theta*DEG_TO_RAD,arrayParams1);
+			motor2.omega = get_Straj(time,temp2*DEG_TO_RAD,motor2.theta*DEG_TO_RAD,arrayParams2);
+			motor3.omega = get_Straj(time,temp3*DEG_TO_RAD,motor3.theta*DEG_TO_RAD,arrayParams3);
 
 			setProfilTimer();
-
 
 			if(startMotors){
 				startMotors = false;
@@ -220,9 +224,13 @@ void statesMachineLoop(void){
 
 			inverseKinematic(Pfin);
 
-			update_ScurveTraj(motor1.currentAngle, motor1.theta, vi, vf, vmax, amax, jmax, arrayParams1);
-			update_ScurveTraj(motor2.currentAngle, motor2.theta, vi, vf, vmax, amax, jmax, arrayParams2);
-			update_ScurveTraj(motor3.currentAngle, motor3.theta, vi, vf, vmax, amax, jmax, arrayParams3);
+			update_ScurveTraj(motor1.currentAngle*DEG_TO_RAD, motor1.theta*DEG_TO_RAD, vi, vf, vmax, amax, jmax, arrayParams1);
+			update_ScurveTraj(motor2.currentAngle*DEG_TO_RAD, motor2.theta*DEG_TO_RAD, vi, vf, vmax, amax, jmax, arrayParams2);
+			update_ScurveTraj(motor3.currentAngle*DEG_TO_RAD, motor3.theta*DEG_TO_RAD, vi, vf, vmax, amax, jmax, arrayParams3);
+
+			temp1=motor1.currentAngle;
+			temp2=motor2.currentAngle;
+			temp3=motor3.currentAngle;
 
 			configMotor(&motor1,1);
 			configMotor(&motor2,2);
@@ -283,7 +291,7 @@ void statesMachineLoop(void){
 				 HAL_Delay(DELAY_FC_SENSOR);
 				 if (ES2i_PRESSED){
 					 positive_Dir_MOTOR_2;
-					 HAL_Delay(DELAY_DIR); 							//delay cambio de dir
+					 HAL_Delay(DELAY_DIR);
 					 Start_PWM_MOTOR_2;
 					 HAL_Delay(DELAY_FAULT);
 					 Stop_PWM_MOTOR_2;
@@ -293,7 +301,7 @@ void statesMachineLoop(void){
 				 HAL_Delay(DELAY_FC_SENSOR);
 				 if (ES2s_PRESSED){
 					 negative_Dir_MOTOR_2;
-					 HAL_Delay(DELAY_DIR); 							//delay cambio de dir
+					 HAL_Delay(DELAY_DIR);
 					 Start_PWM_MOTOR_2;
 					 HAL_Delay(DELAY_FAULT);
 					 Stop_PWM_MOTOR_2;
@@ -303,7 +311,7 @@ void statesMachineLoop(void){
 				 HAL_Delay(DELAY_FC_SENSOR);
 				 if (ES3i_PRESSED){
 					 positive_Dir_MOTOR_3;
-					 HAL_Delay(DELAY_DIR); 							//delay cambio de dir
+					 HAL_Delay(DELAY_DIR);
 					 Start_PWM_MOTOR_3;
 					 HAL_Delay(DELAY_FAULT);
 					 Stop_PWM_MOTOR_3;
@@ -313,7 +321,7 @@ void statesMachineLoop(void){
 				 HAL_Delay(DELAY_FC_SENSOR);
 				 if (ES3s_PRESSED){
 					 negative_Dir_MOTOR_3;
-					 HAL_Delay(DELAY_DIR); 							//delay cambio de dir
+					 HAL_Delay(DELAY_DIR);
 					 Start_PWM_MOTOR_3;
 					 HAL_Delay(DELAY_FAULT);
 					 Stop_PWM_MOTOR_3;

@@ -199,6 +199,10 @@ void Error_Handler(void);
 #define ENABLE_PIN_RESET_2 HAL_GPIO_WritePin(S_Enable_2_GPIO_Port, S_Enable_2_Pin, GPIO_PIN_RESET);
 #define ENABLE_PIN_RESET_3 HAL_GPIO_WritePin(S_Enable_3_GPIO_Port, S_Enable_3_Pin, GPIO_PIN_RESET);
 
+#define ENABLE_PIN_SET_1 HAL_GPIO_WritePin(S_Enable_1_GPIO_Port, S_Enable_1_Pin, GPIO_PIN_SET);
+#define ENABLE_PIN_SET_2 HAL_GPIO_WritePin(S_Enable_2_GPIO_Port, S_Enable_2_Pin, GPIO_PIN_SET);
+#define ENABLE_PIN_SET_3 HAL_GPIO_WritePin(S_Enable_3_GPIO_Port, S_Enable_3_Pin, GPIO_PIN_SET);
+
 #define relayAbierto (HAL_GPIO_WritePin(relayDrivers_GPIO_Port, relayDrivers_Pin, GPIO_PIN_SET))
 #define relayCerrado (HAL_GPIO_WritePin(relayDrivers_GPIO_Port, relayDrivers_Pin, GPIO_PIN_RESET))
 
@@ -215,6 +219,15 @@ void Error_Handler(void);
 #define DELAY_ENABLE 50   //Este valor se encuentra en el datasheet de los drivers
 #define DELAY_DIR 0.5	  //Este valor se encuentra en el datasheet de los drivers
 #define DELAY_FC_SENSOR 30 //Necesario para filtrar el transistorio en los FC
+
+
+#define pi 3.14159265359
+#define RAD_TO_DEG 180.0 / pi
+#define DEG_TO_RAD pi / 180.0
+#define RADs_TO_RPM (60.0/(2.0*pi))
+
+#define SIGN_FUNC(x, y) ((x - y > 0) ? 1 : ((x - y < 0) ? -1 : 0))
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

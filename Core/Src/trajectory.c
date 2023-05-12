@@ -11,7 +11,7 @@
 #include "math.h"
 
 double period[3],accumulatedError[3],periodError[3];
-bool flagInv = false;
+//bool flagInv = false;
 double alima;
 double alimd;
 double vlim;
@@ -21,6 +21,12 @@ double qi,qf;
 
 double get_Straj(double t,double _qi, double _qf ,double *params){
 
+	double SIGN = SIGN_FUNC(_qf,_qi);
+
+	amin=-amax;
+	jmin=-jmax;
+	vmin=-vmax;
+
 	Tj1 = params[0];
 	Tj2 = params[1];
 	Tj = params[2];
@@ -29,40 +35,23 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
 	Tv = params[5];
 	T = params[6];
 
-	qi=_qi;
-	qf=_qf;
+	qi=SIGN*_qi;
+	qf=SIGN*_qf;
+    //vi = SIGN*vi;
+    //vf = SIGN*vf;
 
-    if (qf < qi){
+	vmax = ((SIGN+1)/2)*vmax + ((SIGN-1)/2)*vmin;
+	vmin = ((SIGN+1)/2)*vmin + ((SIGN-1)/2)*vmax;
 
-    flagInv = true;
+	amax = ((SIGN+1)/2)*amax + ((SIGN-1)/2)*amin;
+	amin = ((SIGN+1)/2)*amin + ((SIGN-1)/2)*amax;
 
-    qi = -qi;
-    qf = -qf;
-    vi = -vi;
-    vf = -vf;
-
-    vmax = -vmin;
-    vmin = -vmax;
-    amax = -amin;
-    amin = -amax;
-    jmax = -jmin;
-    jmin = -jmax;
+	jmax = ((SIGN+1)/2)*jmax + ((SIGN-1)/2)*jmin;
+	jmin = ((SIGN+1)/2)*jmin + ((SIGN-1)/2)*jmax;
 
     alima = jmax*Tj1;
     alimd = -jmax*Tj2;
     vlim = vi+(Ta-Tj1)*alima;
-
-    }else{
-        jmin = -jmax;
-        amin = -amax;
-        vmin = -vmax;
-
-        alima = jmax*Tj1;
-        alimd = -jmax*Tj2;
-        vlim = vi+(Ta-Tj1)*alima;
-
-    }
-
 
     //#Acceleration phase
 
@@ -72,10 +61,10 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
         qd = vi+jmax*pow(t,2)/2;
         qdd = jmax*t;
         qddd = jmax;
-        if (flagInv){
-            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-            flagInv = false;
-        }
+//        if (flagInv){
+//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
+//            flagInv = false;
+//        }
 
     } else if (t>Tj1 && t<=Ta-Tj1){   //b) [Tj1,Ta-Tj1]
         //printf("tramo2\n");
@@ -84,10 +73,10 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
         qdd = jmax*Tj1;
         qddd = 0;
 
-        if (flagInv){
-            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-            flagInv = false;
-        }
+//        if (flagInv){
+//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
+//            flagInv = false;
+//        }
 
     } else if (t>Ta-Tj1 && t<=Ta){    //c) [Ta-Tj1,Ta]
         //printf("tramo3\n");
@@ -95,10 +84,10 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
         qd = vlim+jmin*pow(Ta-t,2)/2;
         qdd = -jmin*(Ta-t);
         qddd = jmin;
-        if (flagInv){
-            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-            flagInv = false;
-        }
+//        if (flagInv){
+//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
+//            flagInv = false;
+//        }
     }
 
     /*-------------Constant phase ----------------*/
@@ -108,10 +97,10 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
         qd = vlim;
         qdd = 0;
         qddd = 0;
-        if (flagInv){
-            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-            flagInv = false;
-        }
+//        if (flagInv){
+//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
+//            flagInv = false;
+//        }
     }
     /*-------------Dese phase ----------------*/
 
@@ -121,20 +110,20 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
         qd=vlim-jmax*(pow(t-T+Td,2)/2);
         qdd=-jmax*(t-T+Td);
         qddd=jmin;
-        if (flagInv){
-            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-            flagInv = false;
-        }
+//        if (flagInv){
+//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
+//            flagInv = false;
+//        }
     } else if (t>T-Td+Tj2 && t<=T-Tj2){
         //printf("tramo6\n");
         q=qf-(vlim+vf)*Td/2+vlim*(t-T+Td)+(alimd/6)*(3*pow(t-T+Td,2)-3*Tj2*(t-T+Td)+pow(Tj2,2));
         qd=vlim+alimd*(t-T+Td-Tj2/2);
         qdd = -jmax*Tj2;
         qddd = 0;
-        if (flagInv){
-            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-            flagInv = false;
-        }
+//        if (flagInv){
+//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
+//            flagInv = false;
+//        }
 
     } else if (t>T-Tj2 && t<=T){
         //printf("tramo7\n");
@@ -142,12 +131,17 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
         qd = vf+jmax*(pow(T-t,2))/2;
         qdd = -jmax*(T-t);
         qddd = jmax;
-        if (flagInv){
-            //printf("inv tramo7\n");
-            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-            flagInv = false;
-        }
+//        if (flagInv){
+//            //printf("inv tramo7\n");
+//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
+//            flagInv = false;
+//        }
     }
+
+    q = SIGN*q;
+    qd = SIGN*qd;
+    qdd = SIGN*qdd;
+    qddd = SIGN*qddd;
 
 
     return qd;
@@ -156,41 +150,59 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
 
 void update_ScurveTraj(double _qi ,double _qf, double vi,double vf ,double vmax,double amax,double jmax, double *params){
 
-	jmin = -jmax;
-	amin = -amax;
-	vmin = -vmax;
-	qi=_qi;
-	qf=_qf;
+	double SIGN = SIGN_FUNC(_qf,_qi);
 
-	if (qf < qi){
+	amin=-amax;
+	jmin=-jmax;
+	vmin=-vmax;
 
-		flagInv = true;
+	qi=SIGN*_qi;
+	qf=SIGN*_qf;
+    //vi = SIGN*vi;
+    //vf = SIGN*vf;
 
-		qi = -qi;
-		qf = -qf;
-		vi = -vi;
-		vf = -vf;
+	vmax = ((SIGN+1)/2)*vmax + ((SIGN-1)/2)*vmin;
+	vmin = ((SIGN+1)/2)*vmin + ((SIGN-1)/2)*vmax;
+	amax = ((SIGN+1)/2)*amax + ((SIGN-1)/2)*amin;
+	amin = ((SIGN+1)/2)*amin + ((SIGN-1)/2)*amax;
+	jmax = ((SIGN+1)/2)*jmax + ((SIGN-1)/2)*jmin;
+	jmin = ((SIGN+1)/2)*jmin + ((SIGN-1)/2)*jmax;
 
-		vmax = -vmin;
-		vmin = -vmax;
-		amax = -amin;
-		amin = -amax;
-		jmax = -jmin;
-		jmin = -jmax;
+    alima = jmax*Tj1;
+    alimd = -jmax*Tj2;
+    vlim = vi+(Ta-Tj1)*alima;
 
-	}
+//	if (qf < qi){
+//
+//		flagInv = true;
+//
+//		qi = -qi;
+//		qf = -qf;
+//		vi = -vi;
+//		vf = -vf;
+//
+//		vmax = -vmin;
+//		vmin = -vmax;
+//		amax = -amin;
+//		amin = -amax;
+//		jmax = -jmin;
+//		jmin = -jmax;
+//
+//	}
 
+	/* ESTAS ECUACIONES NOS PERMITEN SABER A PRIORI SI LA TRAYECTORIA SE PUEDE REALIZAR DADAS LAS CONDICIONES DE BORDE Y RESTRICCIONES
 	volatile float Tjaux = MIN(sqrt(fabs(vf-vi)/jmax),amax/jmax);
-
-
 	if (Tjaux<amax/jmax){
 		//if (qf-qi > Tjaux*(vi+vf)) {printf("the trajectory is feasible \n");}
-		//else {printf("the trajectory is NOT \n");}
+		//else {printf("the trajectory is NOT feasible \n");}
 	}
 	else if (Tjaux == amax/jmax){
 		//if (qf-qi > 0.5*(vi+vf)*(Tjaux+fabs(vi+vf)/amax)) {printf("the trajectory is feasible\n");}
 		//else {printf("the trajectory is NOT feasible\n");}
 	}
+	*/
+
+
 	//Phase 1: acceleration
 	if ((vmax-vi)*jmax < pow(amax,2)){
 		//printf("amax is NOT reached\n");
@@ -268,6 +280,8 @@ void update_ScurveTraj(double _qi ,double _qf, double vi,double vf ,double vmax,
 		}
 	}
 
+	T=Ta+Td+Tv;
+
 	*(params)=Tj1;
 	*(params+1)=Tj2;
 	*(params+2)=Tj;
@@ -285,10 +299,9 @@ void setProfilTimer(void){
 	motor2.rpm = motor2.omega * RADs_TO_RPM;
 	motor3.rpm = motor3.omega * RADs_TO_RPM;
 
-
-    period[0] = COUNTERPERIOD(motor1.rpm);
-    period[1] = COUNTERPERIOD(motor2.rpm);
-    period[2] = COUNTERPERIOD(motor3.rpm);
+    period[0] = COUNTERPERIOD(fabs(motor1.rpm));
+    period[1] = COUNTERPERIOD(fabs(motor2.rpm));
+    period[2] = COUNTERPERIOD(fabs(motor3.rpm));
 
 	// Calculo el error por casteo a int, y cuando supero la unidad, lo compenzo
     /*
