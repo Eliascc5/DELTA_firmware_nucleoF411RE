@@ -11,7 +11,6 @@
 #include "math.h"
 
 double period[3],accumulatedError[3],periodError[3];
-//bool flagInv = false;
 double alima;
 double alimd;
 double vlim;
@@ -35,8 +34,8 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
 	Tv = params[5];
 	T = params[6];
 
-	qi=SIGN*_qi;
-	qf=SIGN*_qf;
+	qi = SIGN*_qi;
+	qf = SIGN*_qf;
     //vi = SIGN*vi;
     //vf = SIGN*vf;
 
@@ -61,33 +60,18 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
         qd = vi+jmax*pow(t,2)/2;
         qdd = jmax*t;
         qddd = jmax;
-//        if (flagInv){
-//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-//            flagInv = false;
-//        }
-
     } else if (t>Tj1 && t<=Ta-Tj1){   //b) [Tj1,Ta-Tj1]
         //printf("tramo2\n");
         q = qi+vi*t+(alima/6)*(3*pow(t,2)-3*Tj1*t+pow(Tj1,2));
         qd = vi+alima*(t-Tj1/2);
         qdd = jmax*Tj1;
         qddd = 0;
-
-//        if (flagInv){
-//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-//            flagInv = false;
-//        }
-
     } else if (t>Ta-Tj1 && t<=Ta){    //c) [Ta-Tj1,Ta]
         //printf("tramo3\n");
         q = qi+(vlim+vi)*Ta/2-vlim*(Ta-t)-jmin*pow(Ta-t,3)/6;
         qd = vlim+jmin*pow(Ta-t,2)/2;
         qdd = -jmin*(Ta-t);
         qddd = jmin;
-//        if (flagInv){
-//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-//            flagInv = false;
-//        }
     }
 
     /*-------------Constant phase ----------------*/
@@ -97,10 +81,6 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
         qd = vlim;
         qdd = 0;
         qddd = 0;
-//        if (flagInv){
-//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-//            flagInv = false;
-//        }
     }
     /*-------------Dese phase ----------------*/
 
@@ -110,38 +90,24 @@ double get_Straj(double t,double _qi, double _qf ,double *params){
         qd=vlim-jmax*(pow(t-T+Td,2)/2);
         qdd=-jmax*(t-T+Td);
         qddd=jmin;
-//        if (flagInv){
-//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-//            flagInv = false;
-//        }
     } else if (t>T-Td+Tj2 && t<=T-Tj2){
         //printf("tramo6\n");
         q=qf-(vlim+vf)*Td/2+vlim*(t-T+Td)+(alimd/6)*(3*pow(t-T+Td,2)-3*Tj2*(t-T+Td)+pow(Tj2,2));
         qd=vlim+alimd*(t-T+Td-Tj2/2);
         qdd = -jmax*Tj2;
         qddd = 0;
-//        if (flagInv){
-//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-//            flagInv = false;
-//        }
-
     } else if (t>T-Tj2 && t<=T){
         //printf("tramo7\n");
         q = qf-vf*(T-t)-jmax*(pow(T-t,3)/6);
         qd = vf+jmax*(pow(T-t,2))/2;
         qdd = -jmax*(T-t);
         qddd = jmax;
-//        if (flagInv){
-//            //printf("inv tramo7\n");
-//            q=-q; qd=-qd; qdd=-qdd; qddd=-qddd;
-//            flagInv = false;
-//        }
     }
 
-    q = SIGN*q;
-    qd = SIGN*qd;
-    qdd = SIGN*qdd;
-    qddd = SIGN*qddd;
+    q = SIGN * q;
+    qd = SIGN * qd;
+    qdd = SIGN * qdd;
+    qddd = SIGN * qddd;
 
 
     return qd;
@@ -152,12 +118,12 @@ void update_ScurveTraj(double _qi ,double _qf, double vi,double vf ,double vmax,
 
 	double SIGN = SIGN_FUNC(_qf,_qi);
 
-	amin=-amax;
-	jmin=-jmax;
-	vmin=-vmax;
+	amin = -amax;
+	jmin = -jmax;
+	vmin = -vmax;
 
-	qi=SIGN*_qi;
-	qf=SIGN*_qf;
+	qi = SIGN*_qi;
+	qf = SIGN*_qf;
     //vi = SIGN*vi;
     //vf = SIGN*vf;
 
@@ -168,29 +134,8 @@ void update_ScurveTraj(double _qi ,double _qf, double vi,double vf ,double vmax,
 	jmax = ((SIGN+1)/2)*jmax + ((SIGN-1)/2)*jmin;
 	jmin = ((SIGN+1)/2)*jmin + ((SIGN-1)/2)*jmax;
 
-    alima = jmax*Tj1;
-    alimd = -jmax*Tj2;
-    vlim = vi+(Ta-Tj1)*alima;
 
-//	if (qf < qi){
-//
-//		flagInv = true;
-//
-//		qi = -qi;
-//		qf = -qf;
-//		vi = -vi;
-//		vf = -vf;
-//
-//		vmax = -vmin;
-//		vmin = -vmax;
-//		amax = -amin;
-//		amin = -amax;
-//		jmax = -jmin;
-//		jmin = -jmax;
-//
-//	}
-
-	/* ESTAS ECUACIONES NOS PERMITEN SABER A PRIORI SI LA TRAYECTORIA SE PUEDE REALIZAR DADAS LAS CONDICIONES DE BORDE Y RESTRICCIONES
+	/* ESTAS ECUACIONES NOS PERMITEN SABER A PRIORI SI LA TRAYECTORIA SE PUEDE REALIZAR DADAS LAS CONDICIONES DE BORDE Y RESTRICCIONES O NO.
 	volatile float Tjaux = MIN(sqrt(fabs(vf-vi)/jmax),amax/jmax);
 	if (Tjaux<amax/jmax){
 		//if (qf-qi > Tjaux*(vi+vf)) {printf("the trajectory is feasible \n");}
@@ -236,6 +181,7 @@ void update_ScurveTraj(double _qi ,double _qf, double vi,double vf ,double vmax,
 
 	if (Tv>0){
 		//printf("the max velocity is reached\n");
+		//printf("CASE 1\n");
 	}
 	else{
 		//printf("CASE 2\n");
@@ -250,7 +196,6 @@ void update_ScurveTraj(double _qi ,double _qf, double vi,double vf ,double vmax,
 
 
 		if (Ta<2*Tj || Td<2*Tj){
-			//printf("entre\n");
 			while (!(Ta>2*Tj && Td>2*Tj)){
 
 				amax=amax*0.99;
@@ -258,9 +203,6 @@ void update_ScurveTraj(double _qi ,double _qf, double vi,double vf ,double vmax,
 				delta = (pow(amax,4)/pow(jmax,2))+2*(pow(vi,2)+pow(vf,2))+amax*(4*(qf-qi)-2*(amax/jmax)*(vi+vf));
 				Ta=((pow(amax,2)/jmax)-2*vi+sqrt(delta))/(2*amax);
 				Td=((pow(amax,2)/jmax)-2*vf+sqrt(delta))/(2*amax);
-
-				//print(f'{i}',amax)
-
 
 				if (Ta<0){
 					Ta=0;
