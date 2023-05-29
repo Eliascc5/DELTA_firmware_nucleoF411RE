@@ -32,16 +32,16 @@ bool manualTrigger = false;
 
 double q=0,qd=0,qdd=0,qddd=0;
 
-double vmax = 1;		//Velocidad maxima
+double vmax = 0.75;		//Velocidad maxima
 double vmin;			//Velocidad minima
 
-double vi = 0.3;		//Velocidad inicial
-double vf = 0.3;			//Velocidad final
+double vi = 0.7;		//Velocidad inicial
+double vf = 0.5;			//Velocidad final
 
-double amax = 1;		//Aceleracion maxima
+double amax = 5;		//Aceleracion maxima
 double amin;			//Aceleracion minima
 
-double jmax = 2;        //Jerk maximo
+double jmax = 300;        //Jerk maximo
 double jmin;			//Jerk minimo
 //--------------------------------------------
 
@@ -160,10 +160,10 @@ void statesMachineLoop(void){
 				HAL_TIM_IC_Stop(&htim5, TIM_CHANNEL_1);
 			}else if (motor2.stepReached) {
 				Stop_PWM_MOTOR_2;
-				HAL_TIM_IC_Stop(&htim10, TIM_CHANNEL_2);
+				HAL_TIM_IC_Stop(&htim10, TIM_CHANNEL_1);
 			}else if (motor3.stepReached){
 				Stop_PWM_MOTOR_3;
-				HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_3);
+				HAL_TIM_IC_Stop(&htim11, TIM_CHANNEL_1);
 			}
 
 			motor1.omega = get_Straj(time,temp1*DEG_TO_RAD,motor1.theta*DEG_TO_RAD,arrayParams1);
