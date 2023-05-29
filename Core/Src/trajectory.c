@@ -266,6 +266,8 @@ void setProfilTimer(void){
 	TIM3->CCR1 = (uint32_t)((double)(TIM3->ARR) / 2.0);
 	TIM4->CCR1 = (uint32_t)((double)(TIM4->ARR) / 2.0);
 
+	//__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,__HAL_TIM_GET_AUTORELOAD(&htim1)/2.0);
+
 
 }
 
