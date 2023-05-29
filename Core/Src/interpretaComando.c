@@ -41,7 +41,7 @@ void interpretaComando(void){
 					auxString[k] = 0;
 				}
 				j=0;
-				HAL_UART_Transmit(&huart2, (uint8_t *)"Px_ok\n", 7, 100);
+				//HAL_UART_Transmit(&huart2, (uint8_t *)"Px_ok\n", 7, 100); //Para debug
 			}
 			else if(rx_buffer[i] == 'y'){
 				while(rx_buffer[i+1] != ' '){			//Almacenar dato en buffer hasta que se encuentre un espacio
@@ -54,7 +54,7 @@ void interpretaComando(void){
 					auxString[k] = 0;
 				}
 				j=0;
-				HAL_UART_Transmit(&huart2,(uint8_t *)"Py_ok\n", 7, 100);
+				//HAL_UART_Transmit(&huart2,(uint8_t *)"Py_ok\n", 7, 100); //Para debug
 			}
 			else if(rx_buffer[i] == 'z'){
 				while(rx_buffer[i+1] != '\n' && rx_buffer[i+1] != 0){			//Almacenar dato en buffer hasta que se encuentre un espacio
@@ -67,7 +67,7 @@ void interpretaComando(void){
 					auxString[k] = 0;
 				}
 				j=0;
-				HAL_UART_Transmit(&huart2,(uint8_t *)"Pz_ok\n", 7, 100);
+				//HAL_UART_Transmit(&huart2,(uint8_t *)"Pz_ok\n", 7, 100); //Para debug
 				if(rx_buffer[i+1] == '\n'){	//Detectar salto de línea
 				    newline_detected = true;
 				}

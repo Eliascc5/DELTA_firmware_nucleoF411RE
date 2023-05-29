@@ -8,7 +8,7 @@
  */
 #include "homing.h"
 
-#define TIME_OFFSET 1100
+#define TIME_OFFSET 1100 //Valor experimental.
 double rpm = 1.0;  //Valor experimental. Se encontro que es una buena velocidad para la tarea de homing
 bool homAprox, homStart;
 
@@ -93,7 +93,7 @@ void homing(void) {
 
             Stop_PWM_MOTOR_1;
             motor1.hom=true;
-            HAL_UART_Transmit(&huart2,(uint8_t *)"F1\n", 4, 100);
+            //HAL_UART_Transmit(&huart2,(uint8_t *)"F1\n", 4, 100);
             HAL_Delay(DELAY_FC_SENSOR);
 
             if (ES2s_UNPRESSED && !motor2.hom)Start_PWM_MOTOR_2;
@@ -120,7 +120,7 @@ void homing(void) {
 
             Stop_PWM_MOTOR_2;
             motor2.hom=true;
-            HAL_UART_Transmit(&huart2,(uint8_t *)"F2\n", 4, 100);
+            //HAL_UART_Transmit(&huart2,(uint8_t *)"F2\n", 4, 100);
             HAL_Delay(DELAY_FC_SENSOR);
 
             if (ES1s_UNPRESSED && !motor1.hom)Start_PWM_MOTOR_1;
@@ -146,7 +146,7 @@ void homing(void) {
 
             Stop_PWM_MOTOR_3;
             motor3.hom = true;
-            HAL_UART_Transmit(&huart2,(uint8_t *)"F3\n", 4, 100);
+            //HAL_UART_Transmit(&huart2,(uint8_t *)"F3\n", 4, 100);
 			HAL_Delay(DELAY_FC_SENSOR);
             if (ES1s_UNPRESSED && !motor1.hom)Start_PWM_MOTOR_1;
             if (ES2s_UNPRESSED && !motor2.hom)Start_PWM_MOTOR_2;
